@@ -9,6 +9,8 @@ Clean it up, list dependencies, check it works (Last use in 2021).
 
 ## Help
 
+ocrpdf
+
     Usage: ocrpdf [-o PDF] [-f FIRST-PAGE] [-l LAST-PAGE] [PDFS...]
     
     Get scanned or encrypted pdf and OCR it's text.
