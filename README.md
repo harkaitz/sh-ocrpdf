@@ -3,9 +3,12 @@
 This script reads an scanned or encrypted PDF using OCR (Optical Character
 Recognizion) in order to get it's text.
 
-## Todo
+## Dependencies.
 
-Clean it up, list dependencies, check it works (Last use in 2021).
+- tesseract
+- pdfconcat
+- Imagemagick
+- pdfseparate
 
 ## Help
 
@@ -14,4 +17,12 @@ ocrpdf
     Usage: ocrpdf [-o PDF] [-f FIRST-PAGE] [-l LAST-PAGE] [PDFS...]
     
     Get scanned or encrypted pdf and OCR it's text.
+
+## Collaborating
+
+For making bug reports, feature requests and donations visit
+one of the following links:
+
+1. [gemini://harkadev.com/oss/](gemini://harkadev.com/oss/)
+2. [https://harkadev.com/oss/](https://harkadev.com/oss/)
 
