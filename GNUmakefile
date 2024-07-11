@@ -22,4 +22,6 @@ install: install-sh
 install-sh:
 	mkdir -p $(DESTDIR)$(PREFIX)/bin
 	cp bin/ocrpdf           $(DESTDIR)$(PREFIX)/bin
+	cp bin/pdfc             $(DESTDIR)$(PREFIX)/bin
+	cp bin/txtc             $(DESTDIR)$(PREFIX)/bin
 ## -- BLOCK:sh --

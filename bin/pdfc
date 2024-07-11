@@ -1,0 +1,70 @@
+#!/bin/sh -e
+##:
+#h: Usage: pdfc { -l | [-v][-f] FILE }
+#h:
+#h: Extract text from a pdf file (using pdftotext(1)) and execute
+#h: txtc(1) to classify the file.
+##:
+. txtc
+. ocrpdf
+pdfc() {
+    local OPTIND optopt pdf txt ret=0 allow_fail=
+    
+    ## Parse command line arguments.
+    while getopts "lvf" optopt; do
+        case $optopt in
+            l)  txtc -l; return 0;;
+            v)  local VERBOSE=y;;
+            f)  local allow_fail=y;;
+            \?) return 1;;
+        esac
+    done
+    shift $(( $OPTIND - 1 ))
+    pdf="$1"
+    case "${pdf}" in
+        '')
+            echo >&2 "error: Please specify a text file."
+            return 1
+            ;;
+        *.pdf|*.PDF)
+            true;;
+        *)
+            echo >&2 "error: $pdf: Not a pdf file."
+            return 1
+            ;;
+    esac
+    
+    ## Convert pdf to text.
+    txt="$(mktemp)"
+    test ! -n "${VERBOSE}" || echo >&2 "Extracting text from ${pdf} ..."
+    if ! pdftotext -layout "${pdf}" "${txt}" 2>/dev/null >&2; then
+        rm -f "${txt}"
+        return 1
+    fi
+    if ! grep -q '[a-zA-Z0-9]' "${txt}"; then
+        ocrpdf -o "${txt}" -d 100 "${pdf}" >&2
+    fi
+    
+    ## Get txtc.
+    export REF_FILE="${pdf}"
+    if ! txtc -s '.pdf' "${txt}"; then
+        ret=1
+    fi
+    test -n "${VERBOSE}" || rm -f "${txt}"
+    
+    ##
+    if test @"${ret}" = @"0"; then
+        true
+    elif test -n "${allow_fail}"; then
+        echo "${pdf}"
+        ret=0
+    fi
+    return "${ret}"
+}
+## -------------------------------------------------------------------
+if test @"${SCRNAME:-$(basename "$0")}" = @"pdfc"; then
+    case "${1}" in
+        ''|-h|--help) sed -n 's/^ *#h: \{0,1\}//p' "$0";;
+        *)            pdfc "$@"; exit 0;;
+    esac
+fi

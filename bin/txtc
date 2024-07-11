@@ -1,0 +1,67 @@
+#!/bin/sh -e
+##:
+#h: Usage: txtc { -l | [-v][-s SUF] FILE }
+#h:
+#h: Get a new pathname for the file based on "txtc-NAME" programs.
+##:
+txtc() {
+    local OPTIND optopt file prog name suf=''
+    
+    ## Parse command line arguments.
+    while getopts "lvs:" optopt; do
+        case $optopt in
+            l)  txtc_list; return 0;;
+            v)  local VERBOSE=y;;
+            s)  suf="${OPTARG}";;
+            \?) return 1;;
+        esac
+    done
+    shift $(( $OPTIND - 1 ))
+    file="$1"
+    if test ! -n "${file}"; then
+        echo >&2 "error: Please specify a text file."
+        return 1
+    fi
+    
+    ## Run programs until one is found.
+    test ! -n "${VERBOSE}" || echo >&2 "Classifying ${file} ..."
+    name=
+    for prog in $(txtc_list); do
+        test ! -n "${VERBOSE}" || echo >&2 "Running ${prog} ${file} ..."
+        name="$("${prog}" "${file}" || true)"
+        if test -n "${name}"; then
+            test ! -n "${VERBOSE}" || echo >&2 "Matched ${prog}"
+            break
+        fi
+    done
+    
+    ## Not found.
+    if test ! -n "${name}"; then
+        echo >&2 "error: ${REF_FILE:-${file}}: Can't classify file."
+        return 1
+    fi
+    
+    ## Print name.
+    echo "${name}${suf}"
+    return 0
+}
+## -------------------------------------------------------------------
+txtc_list() {
+    case "$(uname -s)" in
+        Windows_NT) local IFS=";";;
+        *)          local IFS=":";;
+    esac
+    find ${PATH}                   \
+         -mindepth 1 -maxdepth 1   \
+         -executable               \
+         -name 'txtc-*'            \
+         -exec 'basename' '{}' ';' \
+         2>/dev/null || true 
+}
+## -------------------------------------------------------------------
+if test @"${SCRNAME:-$(basename "$0")}" = @"txtc"; then
+    case "${1}" in
+        ''|-h|--help) sed -n 's/^ *#h: \{0,1\}//p' "$0";;
+        *)            txtc "$@"; exit 0;;
+    esac
+fi

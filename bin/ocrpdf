@@ -1,6 +1,6 @@
 #!/bin/sh -e
 ##:
-#h: Usage: ocrpdf [-o PDF] [-f FIRST-PAGE] [-l LAST-PAGE] [-c eng|spa] [PDFS...]
+#h: Usage: ocrpdf [-o PDF] [-d DPI(500)] [-f FIRST-PAGE] [-l LAST-PAGE] [-c eng|spa] [PDFS...]
 #h:
 #h: Extract text from pdf using OCR (tesseract).
 ##:
@@ -8,13 +8,14 @@ ocrpdf() {
     local OPTIND optopt p ops= output_pdf="-" first= last= language=
 
     ## Parse command line arguments.
-    while getopts "o:f:l:c:" optopt; do
+    while getopts "o:f:l:c:d:" optopt; do
         ops="${ops}${optopt}"
         case $optopt in
             o)  local output_pdf="${OPTARG}" ;;
             f)  local first="${OPTARG}"      ;;
             l)  local last="${OPTARG}"       ;;
             c)  local language="${OPTARG}"   ;;
+            d)  local OCRPDF_DPI="${OPTARG}" ;;
             \?) return 1;;
         esac
     done
