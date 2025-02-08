@@ -36,7 +36,7 @@ pdfc() {
     
     ## Convert pdf to text.
     txt="$(mktemp)"
-    test ! -n "${VERBOSE}" || echo >&2 "Extracting text from ${pdf} ..."
+    test ! -n "${VERBOSE}" || echo >&2 "Extracting text from ${pdf} to ${txt} ..."
     if ! pdftotext -layout "${pdf}" "${txt}" 2>/dev/null >&2; then
         rm -f "${txt}"
         return 1
