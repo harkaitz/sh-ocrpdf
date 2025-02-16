@@ -5,7 +5,7 @@
 #h: Get a new pathname for the file based on "txtc-NAME" programs.
 ##:
 txtc() {
-    local OPTIND optopt file prog name suf=''
+    local OPTIND=1 optopt file prog name suf=''
     
     ## Parse command line arguments.
     while getopts "lvs:" optopt; do

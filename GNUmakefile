@@ -24,4 +24,6 @@ install-sh:
 	cp bin/ocrpdf $(DESTDIR)$(PREFIX)/bin
 	cp bin/pdfc $(DESTDIR)$(PREFIX)/bin
 	cp bin/txtc $(DESTDIR)$(PREFIX)/bin
+	cp bin/lastdown $(DESTDIR)$(PREFIX)/bin
+	cp bin/pdforg $(DESTDIR)$(PREFIX)/bin
 ## -- BLOCK:sh --

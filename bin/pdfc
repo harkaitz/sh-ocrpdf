@@ -8,7 +8,7 @@
 . txtc
 . ocrpdf
 pdfc() {
-    local OPTIND optopt pdf txt ret=0 allow_fail=
+    local OPTIND=1 optopt pdf txt ret=0 allow_fail=
     
     ## Parse command line arguments.
     while getopts "lvf" optopt; do

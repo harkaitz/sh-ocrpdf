@@ -1,0 +1,113 @@
+#!/bin/sh -e
+##:
+#h: Usage: pdforg {-V | [-r][-m][-i|b] FILES... DIRS... }
+#h:
+#h: Organize the pdf files specified/in directories interactively (-i)
+#h: or in batch (-b).
+#h:
+#h:   -r  Rename files using pdfc(1).
+#h:   -m  Move the files where "${PDFORG:-~/.pdforg.sh} NAME" tells.
+#h:
+#h: By default it doesn't move, nor rename, specify -i or -b.
+##:
+pdforg() {
+    local OPTIND=1 optopt opt_rename= opt_move= opt_mode= yn fr to
+    
+    ## Parse command line arguments.
+    while getopts "rmib" optopt; do
+        case $optopt in
+            r)  opt_rename=y;;
+            m)  opt_move=y;;
+            i)  opt_mode=interactive;;
+            b)  opt_mode=batch;;
+            \?) return 1;;
+        esac
+    done
+    shift $(( $OPTIND - 1 ))
+    if test ! -n "${opt_rename}${opt_move}"; then
+        echo >&2 "error: Specify -r or -m."
+        return 1
+    fi
+
+    ## For each specified pdf file.
+    pdforg_list_pdfs "$@" | while read -r fr; do
+        fr="$(readlink -f "${fr}")"
+        if test -n "${opt_rename}"; then
+            to_base="$(pdfc "${fr}" 2>/dev/null || true)"
+            if test ! -n "${to_base}"; then
+                echo "--- ${fr} (SKIP)"
+                continue
+            fi
+        else
+            to_base="$(basename "${fr}")"
+        fi
+        if test -n "${opt_move}"; then
+            to_dir="$(pdforg_move_directory "${to_base}")"
+            if test ! -n "${to_dir}"; then
+                echo "--- ${fr} (SKIP)"
+                continue
+            fi
+        else
+            to_dir="$(dirname "${fr}")"
+        fi
+        to="${to_dir}/${to_base}"
+        if test @"${fr}" = @"${to}"; then
+            echo "--- ${fr} (SKIP)"
+            continue
+        fi
+        echo ".-- ${fr}"
+        echo "'-> ${to_dir}/${to_base}"
+        case "${opt_mode}" in
+            interactive)
+                if test -e /dev/tty; then
+                    echo -n 'Continue? y/N/q: ' >/dev/tty
+                    read -r yn </dev/tty
+                else
+                    echo >&2 "error: Can't find a tty."
+                    return 1
+                fi
+                if test @"${yn}" = @"y"; then
+                    mkdir -p "$(dirname "${to}")"
+                    mv "${fr}" "${to}"
+                elif test @"${yn}" = @"q"; then
+                    break
+                fi
+                ;;
+            batch)
+                mkdir -p "$(dirname "${to}")"
+                mv "${fr}" "${to}"
+                ;;
+        esac
+    done
+}
+pdforg_list_pdfs() {
+    local arg
+    for arg in "$@"; do
+        if test -d "${arg}"; then
+            find "${arg}" -maxdepth 1 -type f -name '*.pdf' -or -name '*.PDF'
+        elif test -f "${arg}"; then
+            printf '%s\n' "${arg}"
+        else
+            echo >&2 "pdforg: error: ${arg}: File not found."
+            return 1
+        fi
+    done
+}
+
+
+pdforg_move_directory() {
+    if test -x "${PDFORG}"; then
+        "${PDFORG}" "$1"
+    elif test -f "${PDFORG}"; then
+        sh -e "${PDFORG}" "$1"
+    fi  
+}
+# --------------------------------------------------------------------
+PDFORG="${PDFORG:-${HOME}/.pdforg.sh}"
+if test @"${SCRNAME:-$(basename "$0")}" = @"pdforg"; then
+    case "${1}" in
+        ''|-h|--help) sed -n 's/^ *#h: \{0,1\}//p' "$0";;
+        -*V*)         echo "PDFORG : ${PDFORG}";;
+        *)            pdforg "$@"; exit 0;;
+    esac
+fi

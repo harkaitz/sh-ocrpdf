@@ -5,7 +5,7 @@
 #h: Extract text from pdf using OCR (tesseract).
 ##:
 ocrpdf() {
-    local OPTIND optopt p ops= output_pdf="-" first= last= language=
+    local OPTIND=1 optopt p ops= output_pdf="-" first= last= language=
 
     ## Parse command line arguments.
     while getopts "o:f:l:c:d:" optopt; do

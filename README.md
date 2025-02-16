@@ -1,7 +1,7 @@
 OCRPDF
 ======
 
-Extract text from pdf files using tesseract(1).
+Scripts for extracting text from pdf files and organizing them.
 
 ## Dependencies
 
@@ -11,6 +11,12 @@ Debian
     # apt-get -y install poppler-utils xpaint tesseract-ocr tesseract-ocr-spa
 
 ## Help
+
+lastdown
+
+    Usage: lastdown [-t SECS]
+    
+    Print the last downloaded file name. 
 
 ocrpdf
 
@@ -25,6 +31,18 @@ pdfc
     Extract text from a pdf file (using pdftotext(1)) and execute
     txtc(1) to classify the file.
 
+pdforg
+
+    Usage: pdforg {-V | [-r][-m][-i|b] FILES... DIRS... }
+    
+    Organize the pdf files specified/in directories interactively (-i)
+    or in batch (-b).
+    
+      -r  Rename files using pdfc(1).
+      -m  Move the files where "${PDFORG:-~/.pdforg.sh} NAME" tells.
+    
+    By default it doesn't move, nor rename, specify -i or -b.
+
 txtc
 
     Usage: txtc { -l | [-v][-s SUF] FILE }
@@ -33,7 +51,7 @@ txtc
 
 ## Collaborating
 
-For making bug reports, feature requests and donations visit
+For making bug reports, feature requests, support or consulting visit
 one of the following links:
 
 1. [gemini://harkadev.com/oss/](gemini://harkadev.com/oss/)
